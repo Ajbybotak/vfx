@@ -42,10 +42,10 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
             // mnożymy POS_* przez 16
             keyframes[frameNum] = {
                 "POS_X": parseFloat(values[1]) * 16,
-                "POS_Y": parseFloat(values[2]) * 16,
+                "POS_Y": parseFloat(values[2]) * -16,
                 "POS_Z": parseFloat(values[3]) * 16,
-                "ROT_X": parseFloat(values[4]),
-                "ROT_Y": parseFloat(values[5]),
+                "ROT_X": parseFloat(values[5]),
+                "ROT_Y": parseFloat(values[4]) * -1,
                 "ROT_Z": parseFloat(values[6])
             };
         });
