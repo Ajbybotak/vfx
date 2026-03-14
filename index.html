@@ -39,10 +39,11 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
 
             const frameNum = values[0];
 
+            // mnożymy POS_* przez 16
             keyframes[frameNum] = {
-                "POS_X": parseFloat(values[1]),
-                "POS_Y": parseFloat(values[2]),
-                "POS_Z": parseFloat(values[3]),
+                "POS_X": parseFloat(values[1]) * 16,
+                "POS_Y": parseFloat(values[2]) * 16,
+                "POS_Z": parseFloat(values[3]) * 16,
                 "ROT_X": parseFloat(values[4]),
                 "ROT_Y": parseFloat(values[5]),
                 "ROT_Z": parseFloat(values[6])
