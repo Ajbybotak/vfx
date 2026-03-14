@@ -2,11 +2,11 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Kopiuj plik TXT</title>
+<title>Eksport Camera.miobject</title>
 </head>
 <body>
 
-<h2>Wybierz plik TXT</h2>
+<h2>Wybierz plik TXT z klatkami kamery</h2>
 <input type="file" id="fileInput" accept=".txt">
 
 <script>
@@ -19,6 +19,7 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
     reader.onload = function(e) {
         const content = e.target.result;
 
+        // --- Funkcja do pobrania pliku ---
         function downloadFile(filename, text) {
             const blob = new Blob([text], {type: "text/plain"});
             const link = document.createElement("a");
@@ -29,6 +30,77 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
             document.body.removeChild(link);
         }
 
+        // --- Tworzenie keyframes w formacie JSON ---
+        const lines = content.trim().split("\n");
+        const header = lines.shift().split(",").map(h => h.trim());
+
+        const keyframes = {};
+        lines.forEach(line => {
+            const values = line.split(",").map(v => v.trim());
+            const frameNum = values[0];
+            keyframes[frameNum] = {
+                "POS_X": parseFloat(values[1]),
+                "POS_Y": parseFloat(values[2]),
+                "POS_Z": parseFloat(values[3]),
+                "ROT_X": parseFloat(values[4]),
+                "ROT_Y": parseFloat(values[5]),
+                "ROT_Z": parseFloat(values[6])
+            };
+        });
+
+        // --- Tworzenie JSON dla Camera.miobject ---
+        const cameraObject = {
+            "format": 34,
+            "created_in": "2.0.2",
+            "templates": [],
+            "timelines": [
+                {
+                    "id": "87L33SW08PSVMJ20",
+                    "type": "camera",
+                    "name": "",
+                    "temp": "null",
+                    "color_tag": "null",
+                    "hide": false,
+                    "lock": false,
+                    "ghost": false,
+                    "depth": 0,
+                    "default_values": {
+                        "POS_X": 0.0,
+                        "POS_Y": 0.0,
+                        "POS_Z": 0.0,
+                        "ROT_X": 0.0,
+                        "ROT_Y": 0.0,
+                        "ROT_Z": 0.0
+                    },
+                    "keyframes": keyframes,
+                    "parent": "root",
+                    "parent_tree_index": 0,
+                    "lock_bend": true,
+                    "tree_extend": false,
+                    "inherit": {
+                        "position": true,
+                        "rotation": true,
+                        "scale": true,
+                        "alpha": false,
+                        "color": false,
+                        "texture": false,
+                        "surface": true,
+                        "subsurface": true,
+                        "visibility": true,
+                        "bend": false,
+                        "rot_point": false,
+                        "glow_color": true,
+                        "select": false,
+                        "pose": false
+                    },
+                    "scale_resize": true
+                }
+            ],
+            "resources": []
+        };
+
+        // --- Pobranie plików ---
+        downloadFile("Camera.miobject", JSON.stringify(cameraObject, null, 4));
         downloadFile("2.txt", content);
         downloadFile("3.txt", content);
     };
