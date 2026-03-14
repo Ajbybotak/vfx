@@ -19,7 +19,6 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
     reader.onload = function(e) {
         const content = e.target.result;
 
-        // --- Funkcja do pobrania pliku ---
         function downloadFile(filename, text) {
             const blob = new Blob([text], {type: "text/plain"});
             const link = document.createElement("a");
@@ -30,14 +29,16 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
             document.body.removeChild(link);
         }
 
-        // --- Tworzenie keyframes w formacie JSON ---
         const lines = content.trim().split("\n");
-        const header = lines.shift().split(",").map(h => h.trim());
+        lines.shift(); // usuń nagłówek
 
         const keyframes = {};
+
         lines.forEach(line => {
             const values = line.split(",").map(v => v.trim());
+
             const frameNum = values[0];
+
             keyframes[frameNum] = {
                 "POS_X": parseFloat(values[1]),
                 "POS_Y": parseFloat(values[2]),
@@ -48,7 +49,6 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
             };
         });
 
-        // --- Tworzenie JSON dla Camera.miobject ---
         const cameraObject = {
             "format": 34,
             "created_in": "2.0.2",
@@ -99,10 +99,7 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
             "resources": []
         };
 
-        // --- Pobranie plików ---
         downloadFile("Camera.miobject", JSON.stringify(cameraObject, null, 4));
-        downloadFile("2.txt", content);
-        downloadFile("3.txt", content);
     };
 
     reader.readAsText(file);
