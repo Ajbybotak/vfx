@@ -2,69 +2,88 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Generator pliku</title>
+<title>Konwerter</title>
 </head>
 <body>
 
 <h2>Prześlij plik</h2>
-<input type="file" id="fileInput" accept=".txt,.json">
+<input type="file" id="fileInput">
 
 <script>
-document.getElementById("fileInput").addEventListener("change", function(event) {
 
-    const file = event.target.files[0];
-    if (!file) return;
+document.getElementById("fileInput").addEventListener("change", function(event){
 
-    const reader = new FileReader();
+const file = event.target.files[0];
+if(!file) return;
 
-    reader.onload = function(e) {
+const reader = new FileReader();
 
-        const content = e.target.result;
+reader.onload = function(e){
 
-        let fileName = "replaymod";
-        let times = [];
+const content = e.target.result;
 
-        try {
-            const data = JSON.parse(content);
+let fileName = "replaymod";
+let frames = [];
 
-            if (data.usedByPaths && data.usedByPaths.length > 0) {
-                const path = data.usedByPaths[0];
-                const nameWithZip = path.split("\\").pop();
-                fileName = nameWithZip.replace(".zip", "");
-            }
+const data = JSON.parse(content);
 
-        } catch(err) {}
+if(data.usedByPaths && data.usedByPaths.length > 0){
 
-        const matches = content.match(/"(\d+)":\{"position"/g);
+const path = data.usedByPaths[0];
+fileName = path.split("\\").pop().replace(".zip","");
 
-        if (matches) {
-            times = matches.map(m => {
-                const num = parseInt(m.match(/\d+/)[0]);
-                return num + 1;
-            });
-        }
+}
 
-        while (times.length < 4) {
-            times.push(0);
-        }
+const keyframes = data.scenes[0].keyframeTracks[0].keyframesByTick;
 
-        const lastTime = times[times.length - 1];
+for(const tick in keyframes){
 
-        const text = `,"${fileName}":[{"keyframes":[{"time":0,"properties":{"timestamp":2000}},{"time":${lastTime},"properties":{"timestamp":7000}}],"segments":[0],"interpolators":[{"type":"linear","properties":["timestamp"]}]},{"keyframes":[{"time":${times[0]},"properties":{"camera:position":[4521.50659,105.45807,4379.56569],"camera:rotation":[156.09326,6.52502,20.0]}},{"time":${times[1]},"properties":{"camera:position":[4523.62588,106.76436,4362.68553],"camera:rotation":[188.64316,11.32502,-10.0]}},{"time":${times[2]},"properties":{"camera:position":[4511.1496133801365,117.5766253121954,4355.932865345798],"camera:rotation":[124.74318,74.325005,0.0]}},{"time":${times[3]},"properties":{"camera:position":[4500.55213,111.99036,4339.25241],"camera:rotation":[302.0434,30.225,10.0]}}],"segments":[0,0,0],"interpolators":[{"type":{"type":"catmull-rom-spline","alpha":0.5},"properties":["camera:position","camera:rotation"]}]}]`;
+const k = keyframes[tick];
 
-        const blob = new Blob([text], { type: "text/plain" });
-
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = fileName + ".txt";
-
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    };
-
-    reader.readAsText(file);
+frames.push({
+tick:Number(tick),
+position:k.position,
+yaw:k.yaw,
+pitch:k.pitch,
+roll:k.roll
 });
+
+}
+
+frames.sort((a,b)=>a.tick-b.tick);
+
+const times = frames.map(f => f.tick * 50);
+
+const lastTime = times[times.length-1];
+
+const cameraFrames = frames.map((f,i)=>{
+
+const t = f.tick * 50;
+
+return `{"time":${t},"properties":{"camera:position":[${f.position[0]},${f.position[1]},${f.position[2]}],"camera:rotation":[${f.yaw},${f.pitch},${f.roll}]}}`;
+
+}).join(",");
+
+const segments = new Array(frames.length-1).fill(0).join(",");
+
+const text = `,"${fileName}":[{"keyframes":[{"time":0,"properties":{"timestamp":2000}},{"time":${lastTime},"properties":{"timestamp":7000}}],"segments":[0],"interpolators":[{"type":"linear","properties":["timestamp"]}]},{"keyframes":[${cameraFrames}],"segments":[${segments}],"interpolators":[{"type":{"type":"catmull-rom-spline","alpha":0.5},"properties":["camera:position","camera:rotation"]}]}]`;
+
+const blob = new Blob([text],{type:"text/plain"});
+
+const a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download=fileName+".txt";
+
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+
+};
+
+reader.readAsText(file);
+
+});
+
 </script>
 
 </body>
