@@ -2,41 +2,49 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>Wczytaj plik</title>
+<title>Generator pliku</title>
 </head>
 <body>
 
-<h2>Prześlij plik tekstowy</h2>
-<input type="file" id="fileInput" accept=".txt">
+<h2>Prześlij plik</h2>
+<input type="file" id="fileInput" accept=".txt,.json">
 
 <script>
 document.getElementById("fileInput").addEventListener("change", function(event) {
+
     const file = event.target.files[0];
+    if (!file) return;
 
-    if (file) {
-        const reader = new FileReader();
+    const reader = new FileReader();
 
-        reader.onload = function(e) {
-            // zawartość wczytanego pliku (jeśli chcesz ją użyć)
-            const content = e.target.result;
-            console.log("Wczytany plik:", content);
+    reader.onload = function(e) {
 
-            // tworzenie pliku do pobrania
-            const text = "dzień dobry";
-            const blob = new Blob([text], { type: "text/plain" });
+        const content = e.target.result;
 
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = "replaymod.txt";
+        // znajdź nazwę pliku w usedByPaths
+        const match = content.match(/replays\\\\([^\\\\]+)\\.zip/);
 
-            document.body.appendChild(a);
-            a.click();
+        let fileName = "replaymod";
 
-            document.body.removeChild(a);
-        };
+        if (match && match[1]) {
+            fileName = match[1];
+        }
 
-        reader.readAsText(file);
-    }
+        // zawartość pliku do pobrania
+        const text = "dzień dobry";
+
+        const blob = new Blob([text], { type: "text/plain" });
+
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName + ".txt";
+
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+
+    reader.readAsText(file);
 });
 </script>
 
