@@ -27,11 +27,7 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
 
             if (data.usedByPaths && data.usedByPaths.length > 0) {
                 const path = data.usedByPaths[0];
-
-                // pobierz nazwę pliku z końca ścieżki
                 const nameWithZip = path.split("\\").pop();
-
-                // usuń .zip
                 fileName = nameWithZip.replace(".zip", "");
             }
 
@@ -39,7 +35,9 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
             console.log("Błąd parsowania JSON:", err);
         }
 
-        const text = "dzień dobry";
+        // treść pliku z dynamiczną nazwą
+        const text = `,"${fileName}":[{"keyframes":[{"time":0,"properties":{"timestamp":4193}},{"time":12558,"properties":{"timestamp":16751}}],"segments":[0],"interpolators":[{"type":"linear","properties":["timestamp"]}]},{"keyframes":[{"time":0,"properties":{"camera:position":[4521.50659,105.45807,4379.56569],"camera:rotation":[156.09326,6.52502,20.0]}},{"time":4314,"properties":{"camera:position":[4523.62588,106.76436,4362.68553],"camera:rotation":[188.64316,11.32502,-10.0]}},{"time":8381,"properties":{"camera:position":[4511.1496133801365,117.5766253121954,4355.932865345798],"camera:rotation":[124.74318,74.325005,0.0]}},{"time":12558,"properties":{"camera:position":[4500.55213,111.99036,4339.25241],"camera:rotation":[302.0434,30.225,10.0]}}],"segments":[0,0,0],"interpolators":[{"type":{"type":"catmull-rom-spline","alpha":0.5},"properties":["camera:position","camera:rotation"]}]}]`;
+
         const blob = new Blob([text], { type: "text/plain" });
 
         const a = document.createElement("a");
