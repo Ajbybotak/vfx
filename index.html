@@ -20,19 +20,26 @@ document.getElementById("fileInput").addEventListener("change", function(event) 
     reader.onload = function(e) {
 
         const content = e.target.result;
-
-        // znajdź nazwę pliku w usedByPaths
-        const match = content.match(/replays\\\\([^\\\\]+)\\.zip/);
-
         let fileName = "replaymod";
 
-        if (match && match[1]) {
-            fileName = match[1];
+        try {
+            const data = JSON.parse(content);
+
+            if (data.usedByPaths && data.usedByPaths.length > 0) {
+                const path = data.usedByPaths[0];
+
+                // pobierz nazwę pliku z końca ścieżki
+                const nameWithZip = path.split("\\").pop();
+
+                // usuń .zip
+                fileName = nameWithZip.replace(".zip", "");
+            }
+
+        } catch(err) {
+            console.log("Błąd parsowania JSON:", err);
         }
 
-        // zawartość pliku do pobrania
         const text = "dzień dobry";
-
         const blob = new Blob([text], { type: "text/plain" });
 
         const a = document.createElement("a");
